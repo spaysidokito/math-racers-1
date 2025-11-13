@@ -7,6 +7,7 @@ use App\Models\Question;
 use App\Models\QuizAnswer;
 use App\Models\QuizSession;
 use App\Models\StudentProgress;
+use App\Services\QuestionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -56,33 +57,76 @@ class StudentController extends Controller
     ]);
   }
 
+  public function selectDifficulty($grade, $topic)
+  {
+    if (!in_array($grade, [1, 2, 3])) {
+      abort(404);
+    }
+
+    if (!in_array($topic, ['addition', 'subtraction', 'multiplication', 'division'])) {
+      abort(404);
+    }
+
+    $user = Auth::user();
+
+    return Inertia::render('Student/SelectDifficulty', [
+      'user' => $user,
+      'grade' => (int) $grade,
+      'topic' => $topic,
+      'difficulties' => [
+        [
+          'value' => 'easy',
+          'label' => 'Easy',
+          'description' => '2 answer choices',
+          'points' => 5
+        ],
+        [
+          'value' => 'medium',
+          'label' => 'Medium',
+          'description' => '4 answer choices',
+          'points' => 10
+        ],
+        [
+          'value' => 'hard',
+          'label' => 'Hard',
+          'description' => 'Type the answer',
+          'points' => 15
+        ]
+      ]
+    ]);
+  }
+
   public function startQuiz(Request $request)
   {
     $request->validate([
       'grade' => 'required|integer|min:1|max:3',
-      'topic' => 'required|in:addition,subtraction,multiplication,division'
+      'topic' => 'required|in:addition,subtraction,multiplication,division',
+      'difficulty' => 'required|in:easy,medium,hard'
     ]);
 
     $user = Auth::user();
     $grade = $request->grade;
     $topic = $request->topic;
+    $difficulty = $request->difficulty;
 
-    // Get questions for this grade and topic
+    // Get questions for this grade, topic, and difficulty
     $questions = Question::forGrade($grade)
       ->ofType(QuestionType::from($topic))
+      ->withDifficulty(\App\Enums\Difficulty::from($difficulty))
       ->inRandomOrder()
       ->limit(10)
       ->get();
 
     if ($questions->isEmpty()) {
-      return back()->with('error', 'No questions available for this topic and grade level.');
+      return back()->with('error', 'No questions available for this topic, grade level, and difficulty.');
     }
 
-    // Create quiz session with question IDs
+    // Create quiz session with question IDs and difficulty
     $session = QuizSession::create([
       'student_id' => $user->id,
       'question_type' => $topic,
       'grade_level' => $grade,
+      'difficulty' => $difficulty,
       'total_questions' => $questions->count(),
       'question_ids' => $questions->pluck('id')->toArray(),
       'correct_answers' => 0,
@@ -104,11 +148,27 @@ class StudentController extends Controller
     // Get questions for this session (in the correct order)
     $questions = $quizSession->questions;
 
+    // Generate answer choices for each question based on difficulty
+    $questionService = new QuestionService();
+    $questionsWithChoices = $questions->map(function ($question) use ($questionService, $quizSession) {
+      $choices = $questionService->generateAnswerChoices($question);
+
+      return [
+        'id' => $question->id,
+        'question_text' => $question->question_text,
+        'correct_answer' => $question->correct_answer,
+        'choices' => $choices,
+        'difficulty' => $question->difficulty->value,
+        'points' => $question->points
+      ];
+    });
+
     return Inertia::render('Student/QuizGame', [
       'user' => $user,
       'grade' => $quizSession->grade_level,
       'topic' => $quizSession->question_type->value,
-      'questions' => $questions,
+      'difficulty' => $quizSession->difficulty->value,
+      'questions' => $questionsWithChoices,
       'sessionId' => $quizSession->id,
       'totalQuestions' => $quizSession->total_questions
     ]);
@@ -163,7 +223,7 @@ class StudentController extends Controller
 
     // Update session with time taken
     $quizSession->time_taken = $request->total_time;
-    
+
     // Complete quiz session (this will calculate score and update progress)
     $quizSession->complete();
 
@@ -196,7 +256,7 @@ class StudentController extends Controller
     $progressData = $user->progress()
       ->where('grade_level', $user->grade_level)
       ->get()
-      ->keyBy('question_type');
+      ->keyBy(fn($p) => is_object($p->question_type) ? $p->question_type->value : $p->question_type);
 
     // Get recent quiz sessions
     $recentSessions = $user->completedQuizSessions()

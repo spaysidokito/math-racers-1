@@ -83,12 +83,11 @@ export default function Topics({ user, grade, topics }) {
                                         group
                                     `}
                                     onClick={() => {
-                                        router.post(
-                                            route("student.quiz.start"),
-                                            {
+                                        router.visit(
+                                            route("student.difficulty", {
                                                 grade: grade,
                                                 topic: topic,
-                                            }
+                                            })
                                         );
                                     }}
                                 >

@@ -21,6 +21,7 @@ class QuizSession extends Model
     'student_id',
     'question_type',
     'grade_level',
+    'difficulty',
     'total_questions',
     'question_ids',
     'correct_answers',
@@ -38,6 +39,7 @@ class QuizSession extends Model
   protected $casts = [
     'question_type' => QuestionType::class,
     'grade_level' => 'integer',
+    'difficulty' => \App\Enums\Difficulty::class,
     'total_questions' => 'integer',
     'question_ids' => 'array',
     'correct_answers' => 'integer',
@@ -103,6 +105,14 @@ class QuizSession extends Model
   public function scopeOfType($query, QuestionType $type)
   {
     return $query->where('question_type', $type);
+  }
+
+  /**
+   * Scope to filter quiz sessions by difficulty.
+   */
+  public function scopeWithDifficulty($query, \App\Enums\Difficulty $difficulty)
+  {
+    return $query->where('difficulty', $difficulty);
   }
 
   /**
@@ -205,6 +215,7 @@ class QuizSession extends Model
       'student_id' => 'required|exists:users,id',
       'question_type' => 'required|in:addition,subtraction,multiplication,division',
       'grade_level' => 'required|integer|between:1,3',
+      'difficulty' => 'required|in:easy,medium,hard',
       'total_questions' => 'required|integer|min:1|max:20',
     ];
   }

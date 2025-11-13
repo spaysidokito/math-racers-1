@@ -6,14 +6,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-Route::get('/', function () {
-    return Inertia::render('Welcome', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
-    ]);
-});
+Route::get('/', fn() => Inertia::render('Landing'));
 
 Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])
@@ -31,6 +24,7 @@ Route::middleware(['auth', 'role:student'])->group(function () {
         Route::get('/dashboard', [\App\Http\Controllers\StudentController::class, 'dashboard'])->name('dashboard');
         Route::post('/select-grade', [\App\Http\Controllers\StudentController::class, 'selectGrade'])->name('select-grade');
         Route::get('/topics/{grade}', [\App\Http\Controllers\StudentController::class, 'topics'])->name('topics');
+        Route::get('/difficulty/{grade}/{topic}', [\App\Http\Controllers\StudentController::class, 'selectDifficulty'])->name('difficulty');
         Route::post('/quiz/start', [\App\Http\Controllers\StudentController::class, 'startQuiz'])->name('quiz.start');
         Route::get('/quiz/{session}', [\App\Http\Controllers\StudentController::class, 'quiz'])->name('quiz');
         Route::post('/quiz/{session}/answer', [\App\Http\Controllers\StudentController::class, 'submitAnswer'])->name('quiz.answer');
