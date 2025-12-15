@@ -279,6 +279,9 @@ export default function QuestionBankManagement({
                                             Question
                                         </th>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Image
+                                        </th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Details
                                         </th>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -323,6 +326,25 @@ export default function QuestionBankManagement({
                                                     Answer:{" "}
                                                     {question.correct_answer}
                                                 </div>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                {question.image_path ? (
+                                                    <div className="flex items-center space-x-2">
+                                                        <img
+                                                            src={`/storage/${question.image_path}`}
+                                                            alt="Question"
+                                                            className="w-16 h-16 object-cover rounded-lg border-2 border-gray-200 shadow-sm hover:scale-150 transition-transform cursor-pointer"
+                                                            title="Click to view larger"
+                                                        />
+                                                        <span className="text-xs text-green-600 font-semibold">
+                                                            📷
+                                                        </span>
+                                                    </div>
+                                                ) : (
+                                                    <span className="text-xs text-gray-400">
+                                                        No image
+                                                    </span>
+                                                )}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <div className="text-sm text-gray-900">

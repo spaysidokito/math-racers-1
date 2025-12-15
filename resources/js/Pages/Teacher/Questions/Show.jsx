@@ -116,6 +116,22 @@ export default function Show({ auth, question }) {
                                     </div>
                                 </div>
 
+                                {/* Question Image */}
+                                {question.image_path && (
+                                    <div>
+                                        <h3 className="text-lg font-medium text-gray-900 mb-2">
+                                            Question Image
+                                        </h3>
+                                        <div className="bg-gray-50 rounded-lg p-4 flex justify-center">
+                                            <img
+                                                src={`/storage/${question.image_path}`}
+                                                alt="Question illustration"
+                                                className="max-w-full max-h-96 rounded-lg shadow-md border-2 border-gray-200"
+                                            />
+                                        </div>
+                                    </div>
+                                )}
+
                                 {/* Correct Answer */}
                                 <div>
                                     <h3 className="text-lg font-medium text-gray-900 mb-2">

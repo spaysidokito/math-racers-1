@@ -154,6 +154,17 @@ class QuestionController extends Controller
   {
     $validated = $request->validated();
 
+    // Handle image upload
+    if ($request->hasFile('image')) {
+      // Delete old image if exists
+      if ($question->image_path && \Storage::disk('public')->exists($question->image_path)) {
+        \Storage::disk('public')->delete($question->image_path);
+      }
+
+      $imagePath = $request->file('image')->store('question-images', 'public');
+      $validated['image_path'] = $imagePath;
+    }
+
     $question->update($validated);
 
     return redirect()->route('teacher.questions.index')

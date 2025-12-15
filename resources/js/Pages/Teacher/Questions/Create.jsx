@@ -89,28 +89,29 @@ export default function Create({
     const submit = (e) => {
         e.preventDefault();
 
-        const formData = new FormData();
-        formData.append("question_text", data.question_text);
-        if (data.image) {
-            formData.append("image", data.image);
-        }
-        formData.append("question_type", data.question_type);
-        formData.append("grade_level", data.grade_level);
-        formData.append("difficulty", data.difficulty);
-        formData.append("correct_answer", data.correct_answer);
-        formData.append("deped_competency", data.deped_competency);
+        // Prepare data for submission
+        const submitData = {
+            question_text: data.question_text,
+            question_type: data.question_type,
+            grade_level: data.grade_level,
+            difficulty: data.difficulty,
+            correct_answer: data.correct_answer,
+            deped_competency: data.deped_competency,
+        };
 
+        // Add image if present
+        if (data.image) {
+            submitData.image = data.image;
+        }
+
+        // Add options if multiple choice
         if (isMultipleChoice) {
-            const filteredOptions = data.options.filter(
+            submitData.options = data.options.filter(
                 (option) => option.trim() !== ""
             );
-            filteredOptions.forEach((option, index) => {
-                formData.append(`options[${index}]`, option);
-            });
         }
 
-        post(route("teacher.questions.store"), {
-            data: formData,
+        post(route("teacher.questions.store"), submitData, {
             forceFormData: true,
             onSuccess: () => {
                 reset();

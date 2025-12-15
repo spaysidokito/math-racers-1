@@ -26,6 +26,9 @@ export default function QuizGame({
     const [gameCompleted, setGameCompleted] = useState(false);
     const [finalScore, setFinalScore] = useState(null);
     const [answersToSubmit, setAnswersToSubmit] = useState([]);
+    const [attempts, setAttempts] = useState(0);
+    const [showNextButton, setShowNextButton] = useState(false);
+    const [questionAnswered, setQuestionAnswered] = useState(false);
 
     const timerRef = useRef(null);
     const answerInputRef = useRef(null);
@@ -89,9 +92,10 @@ export default function QuizGame({
             selectedChoice !== null
                 ? selectedChoice.toString()
                 : userAnswer.trim();
-        if (isAnswering || !answerValue) return;
+        if (isAnswering || !answerValue || questionAnswered) return;
 
         setIsAnswering(true);
+        setAttempts((prev) => prev + 1);
         const timeTaken = Math.floor((Date.now() - questionStartTime) / 1000);
         const isCorrect =
             currentQuestion.correct_answer.toString() === answerValue;
@@ -109,31 +113,61 @@ export default function QuizGame({
             setRacerPosition((prev) =>
                 Math.min(prev + 100 / questions.length, 100)
             );
+            setQuestionAnswered(true);
+            setShowNextButton(true);
+
+            // Store answer locally to submit at the end
+            setAnswersToSubmit(prev => [...prev, {
+                question_id: currentQuestion.id,
+                answer: answerValue,
+                time_taken: timeTaken,
+                is_correct: true
+            }]);
         } else {
             soundEffects.playError();
+
+            // Check if this is the second attempt
+            if (attempts >= 1) {
+                // Second attempt failed, mark as wrong and show next button
+                setQuestionAnswered(true);
+                setShowNextButton(true);
+
+                // Store answer locally to submit at the end
+                setAnswersToSubmit(prev => [...prev, {
+                    question_id: currentQuestion.id,
+                    answer: answerValue,
+                    time_taken: timeTaken,
+                    is_correct: false
+                }]);
+            } else {
+                // First attempt failed, allow retry
+                setTimeout(() => {
+                    setShowFeedback(false);
+                    setUserAnswer("");
+                    setIsAnswering(false);
+                }, 1500);
+            }
         }
 
-        // Store answer locally to submit at the end
-        setAnswersToSubmit(prev => [...prev, {
-            question_id: currentQuestion.id,
-            answer: answerValue,
-            time_taken: timeTaken,
-            is_correct: isCorrect
-        }]);
-
-        // Show feedback for 2 seconds then move to next question
-        setTimeout(() => {
-            setShowFeedback(false);
-            setUserAnswer("");
+        if (isCorrect || attempts >= 1) {
             setIsAnswering(false);
+        }
+    };
 
-            if (currentQuestionIndex + 1 >= questions.length) {
-                handleQuizComplete();
-            } else {
-                setCurrentQuestionIndex((prev) => prev + 1);
-                setQuestionStartTime(Date.now());
-            }
-        }, 2000);
+    const handleNextQuestion = () => {
+        setShowFeedback(false);
+        setShowNextButton(false);
+        setUserAnswer("");
+        setAttempts(0);
+        setQuestionAnswered(false);
+        setIsAnswering(false);
+
+        if (currentQuestionIndex + 1 >= questions.length) {
+            handleQuizComplete();
+        } else {
+            setCurrentQuestionIndex((prev) => prev + 1);
+            setQuestionStartTime(Date.now());
+        }
     };
 
     const handleQuizComplete = async () => {
@@ -407,7 +441,7 @@ export default function QuizGame({
                                 >
                                     {lastAnswerCorrect
                                         ? "Awesome! 🏆"
-                                        : "Oops! Try again! 💪"}
+                                        : attempts >= 2 ? "Keep trying! 💪" : "Oops! Try again! 💪"}
                                 </h3>
                                 <p
                                     className={`text-lg mb-4 ${
@@ -418,20 +452,38 @@ export default function QuizGame({
                                 >
                                     {lastAnswerCorrect
                                         ? "Your racer zooms forward! 🏎️💨"
-                                        : `The correct answer was: ${currentQuestion.correct_answer}`}
+                                        : attempts >= 2
+                                            ? `The correct answer was: ${currentQuestion.correct_answer}`
+                                            : "You have one more chance!"}
                                 </p>
 
-                                {/* Motivational messages */}
-                                <div
-                                    className={`text-sm px-4 py-2 rounded-full inline-block ${
-                                        lastAnswerCorrect
-                                            ? "bg-green-100 text-green-800"
-                                            : "bg-blue-100 text-blue-800"
-                                    }`}
-                                >
-                                    {lastAnswerCorrect
-                                        ? "🚀 Keep up the great work!"
-                                        : "🌟 You'll get the next one!"}
+                                {/* Motivational messages and Next Button */}
+                                <div className="flex items-center justify-center gap-4 flex-wrap">
+                                    <div
+                                        className={`text-sm px-4 py-2 rounded-full inline-block ${
+                                            lastAnswerCorrect
+                                                ? "bg-green-100 text-green-800"
+                                                : "bg-blue-100 text-blue-800"
+                                        }`}
+                                    >
+                                        {lastAnswerCorrect
+                                            ? "🚀 Keep up the great work!"
+                                            : attempts >= 2
+                                                ? "🌟 You'll get the next one!"
+                                                : "💡 Think carefully and try again!"}
+                                    </div>
+
+                                    {/* Next Question Button */}
+                                    {showNextButton && (
+                                        <button
+                                            onClick={handleNextQuestion}
+                                            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-3 px-6 rounded-xl text-base shadow-lg transform hover:scale-105 transition-all"
+                                        >
+                                            {currentQuestionIndex + 1 >= questions.length
+                                                ? "🏁 Finish Quiz"
+                                                : "➡️ Next Question"}
+                                        </button>
+                                    )}
                                 </div>
                             </div>
                         ) : (
@@ -478,9 +530,9 @@ export default function QuizGame({
                                                                 choice
                                                             )
                                                         }
-                                                        disabled={isAnswering}
+                                                        disabled={isAnswering || questionAnswered}
                                                         className={`w-full text-2xl font-bold py-6 px-8 border-4 rounded-xl transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed ${
-                                                            isAnswering
+                                                            isAnswering || questionAnswered
                                                                 ? "animate-pulse"
                                                                 : "border-blue-300 bg-blue-50 hover:border-blue-500 hover:bg-blue-100 hover:shadow-playful"
                                                         }`}

@@ -315,7 +315,9 @@ class TeacherController extends Controller
           'id' => $student->id,
           'name' => $student->name,
           'grade_level' => $student->grade_level,
-          'progress' => $student->progress->keyBy('question_type'),
+          'progress' => $student->progress->mapWithKeys(function ($progress) {
+            return [$progress->question_type->value => $progress];
+          }),
         ];
       }),
       'availableTopics' => $availableTopics,
@@ -584,7 +586,9 @@ class TeacherController extends Controller
       ->map(function ($assignments) {
         return [
           'student' => $assignments->first()->student,
-          'topics' => $assignments->pluck('question_type')->toArray(),
+          'topics' => $assignments->map(function ($assignment) {
+            return $assignment->question_type->value;
+          })->toArray(),
           'last_updated' => $assignments->max('updated_at'),
         ];
       })

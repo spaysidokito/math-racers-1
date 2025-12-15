@@ -360,17 +360,17 @@ export default function TopicAssignments({
                                                                 <div className="flex items-center space-x-2">
                                                                     <span
                                                                         className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getMasteryColor(
-                                                                            progress.mastery_level
+                                                                            progress.mastery_level || 0
                                                                         )}`}
                                                                     >
-                                                                        {progress.mastery_level.toFixed(
-                                                                            0
+                                                                        {Math.round(
+                                                                            progress.mastery_level || 0
                                                                         )}
                                                                         %
                                                                     </span>
                                                                     <span className="text-gray-500 text-xs">
                                                                         {
-                                                                            progress.total_points
+                                                                            progress.total_points || 0
                                                                         }{" "}
                                                                         pts
                                                                     </span>

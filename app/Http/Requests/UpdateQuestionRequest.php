@@ -23,6 +23,7 @@ class UpdateQuestionRequest extends FormRequest
   {
     return [
       'question_text' => 'required|string|max:1000',
+      'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120', // 5MB max
       'question_type' => 'required|in:addition,subtraction,multiplication,division',
       'grade_level' => 'required|integer|between:1,3',
       'difficulty' => 'required|in:easy,medium,hard',
