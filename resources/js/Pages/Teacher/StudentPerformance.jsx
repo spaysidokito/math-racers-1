@@ -65,24 +65,32 @@ export default function StudentPerformance({
             header={
                 <div className="flex justify-between items-center">
                     <h2 className="text-xl font-semibold leading-tight text-gray-800">
-                        Student Performance Analytics
+                        📊 Student Performance Analytics
                     </h2>
                     <Link
                         href={route("teacher.dashboard")}
-                        className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg text-sm font-medium"
+                        className="bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white px-6 py-3 rounded-xl text-sm font-bold shadow-lg transform hover:scale-105 transition-all"
                     >
-                        Back to Dashboard
+                        🏠 Back to Dashboard
                     </Link>
                 </div>
             }
         >
             <Head title="Student Performance" />
 
-            <div className="py-12">
+            <div className="py-12 bg-gradient-to-br from-gray-50 to-blue-50">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                    {/* Page Header */}
+                    <div className="mb-8 text-center">
+                        <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                            📊 Student Performance
+                        </h1>
+                        <p className="text-gray-600">Track and analyze student progress</p>
+                    </div>
+
                     {/* Filters */}
-                    <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
-                        <div className="p-6">
+                    <div className="bg-white overflow-hidden shadow-xl rounded-2xl border-2 border-blue-100 mb-6">
+                        <div className="p-6 bg-gradient-to-r from-blue-50 to-indigo-50">
                             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                                 {/* Search */}
                                 <form
@@ -320,16 +328,14 @@ export default function StudentPerformance({
                     {/* Summary Statistics */}
                     {students.length > 0 && (
                         <div className="mt-6 grid grid-cols-1 md:grid-cols-4 gap-6">
-                            <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+                            <div className="bg-gradient-to-br from-yellow-500 to-orange-600 overflow-hidden shadow-xl rounded-2xl p-6 text-white transform hover:scale-105 transition-all">
                                 <div className="flex items-center">
-                                    <div className="flex-shrink-0">
-                                        <TrophyIcon className="h-8 w-8 text-yellow-500" />
-                                    </div>
-                                    <div className="ml-4">
-                                        <p className="text-sm font-medium text-gray-600">
+                                    <div className="text-5xl mr-4">🏆</div>
+                                    <div>
+                                        <p className="text-sm font-medium opacity-90">
                                             Avg Points
                                         </p>
-                                        <p className="text-2xl font-bold text-gray-900">
+                                        <p className="text-3xl font-bold">
                                             {Math.round(
                                                 students.reduce(
                                                     (sum, s) =>
@@ -342,16 +348,14 @@ export default function StudentPerformance({
                                 </div>
                             </div>
 
-                            <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+                            <div className="bg-gradient-to-br from-blue-500 to-cyan-600 overflow-hidden shadow-xl rounded-2xl p-6 text-white transform hover:scale-105 transition-all">
                                 <div className="flex items-center">
-                                    <div className="flex-shrink-0">
-                                        <ChartBarIcon className="h-8 w-8 text-blue-500" />
-                                    </div>
-                                    <div className="ml-4">
-                                        <p className="text-sm font-medium text-gray-600">
+                                    <div className="text-5xl mr-4">📊</div>
+                                    <div>
+                                        <p className="text-sm font-medium opacity-90">
                                             Avg Accuracy
                                         </p>
-                                        <p className="text-2xl font-bold text-gray-900">
+                                        <p className="text-3xl font-bold">
                                             {(
                                                 students.reduce(
                                                     (sum, s) =>
@@ -366,16 +370,14 @@ export default function StudentPerformance({
                                 </div>
                             </div>
 
-                            <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+                            <div className="bg-gradient-to-br from-green-500 to-emerald-600 overflow-hidden shadow-xl rounded-2xl p-6 text-white transform hover:scale-105 transition-all">
                                 <div className="flex items-center">
-                                    <div className="flex-shrink-0">
-                                        <AcademicCapIcon className="h-8 w-8 text-green-500" />
-                                    </div>
-                                    <div className="ml-4">
-                                        <p className="text-sm font-medium text-gray-600">
+                                    <div className="text-5xl mr-4">🎯</div>
+                                    <div>
+                                        <p className="text-sm font-medium opacity-90">
                                             Total Quizzes
                                         </p>
-                                        <p className="text-2xl font-bold text-gray-900">
+                                        <p className="text-3xl font-bold">
                                             {students.reduce(
                                                 (sum, s) =>
                                                     sum + s.total_quizzes,
@@ -386,16 +388,14 @@ export default function StudentPerformance({
                                 </div>
                             </div>
 
-                            <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+                            <div className="bg-gradient-to-br from-purple-500 to-pink-600 overflow-hidden shadow-xl rounded-2xl p-6 text-white transform hover:scale-105 transition-all">
                                 <div className="flex items-center">
-                                    <div className="flex-shrink-0">
-                                        <ClockIcon className="h-8 w-8 text-purple-500" />
-                                    </div>
-                                    <div className="ml-4">
-                                        <p className="text-sm font-medium text-gray-600">
+                                    <div className="text-5xl mr-4">✅</div>
+                                    <div>
+                                        <p className="text-sm font-medium opacity-90">
                                             Active Students
                                         </p>
-                                        <p className="text-2xl font-bold text-gray-900">
+                                        <p className="text-3xl font-bold">
                                             {
                                                 students.filter(
                                                     (s) =>

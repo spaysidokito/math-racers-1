@@ -10,10 +10,10 @@ import Modal from "@/Components/Modal";
 export default function Index({
     auth,
     questions,
-    filters,
-    questionTypes,
-    difficulties,
-    gradeLevels,
+    filters = {},
+    questionTypes = [],
+    difficulties = [],
+    gradeLevels = [],
 }) {
     const [search, setSearch] = useState(filters.search || "");
     const [gradeFilter, setGradeFilter] = useState(filters.grade_level || "");
@@ -101,22 +101,33 @@ export default function Index({
             header={
                 <div className="flex justify-between items-center">
                     <h2 className="font-semibold text-xl text-gray-800 leading-tight">
-                        Question Management
+                        ❓ Question Management
                     </h2>
                     <Link href={route("teacher.questions.create")}>
-                        <PrimaryButton>Add New Question</PrimaryButton>
+                        <button className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-6 py-3 rounded-xl text-sm font-bold shadow-lg transform hover:scale-105 transition-all">
+                            ➕ Add New Question
+                        </button>
                     </Link>
                 </div>
             }
         >
             <Head title="Questions" />
 
-            <div className="py-12">
+            <div className="py-12 bg-gradient-to-br from-gray-50 to-purple-50">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                    {/* Page Header */}
+                    <div className="mb-8 text-center">
+                        <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                            ❓ My Questions
+                        </h1>
+                        <p className="text-gray-600">Manage your quiz questions</p>
+                    </div>
+
                     {/* Filters */}
-                    <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
-                        <div className="p-6">
-                            <h3 className="text-lg font-medium text-gray-900 mb-4">
+                    <div className="bg-white overflow-hidden shadow-xl rounded-2xl border-2 border-purple-100 mb-6">
+                        <div className="p-6 bg-gradient-to-r from-purple-50 to-pink-50">
+                            <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center">
+                                <span className="mr-2">🔍</span>
                                 Filters
                             </h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
@@ -244,7 +255,7 @@ export default function Index({
                                         </tr>
                                     </thead>
                                     <tbody className="bg-white divide-y divide-gray-200">
-                                        {questions.data.map((question) => (
+                                        {questions?.data?.map((question) => (
                                             <tr
                                                 key={question.id}
                                                 className="hover:bg-gray-50"
@@ -340,31 +351,43 @@ export default function Index({
                             </div>
 
                             {/* Pagination */}
-                            {questions.links && (
-                                <div className="mt-6 flex justify-between items-center">
-                                    <div className="text-sm text-gray-700">
-                                        Showing {questions.from} to{" "}
-                                        {questions.to} of {questions.total}{" "}
-                                        results
+                            {questions?.links &&
+                                questions.links.length > 3 && (
+                                    <div className="mt-6 flex justify-between items-center">
+                                        <div className="text-sm text-gray-700">
+                                            Showing {questions.from || 0} to{" "}
+                                            {questions.to || 0} of{" "}
+                                            {questions.total || 0} results
+                                        </div>
+                                        <div className="flex space-x-1">
+                                            {questions.links.map(
+                                                (link, index) =>
+                                                    link.url ? (
+                                                        <Link
+                                                            key={index}
+                                                            href={link.url}
+                                                            className={`px-3 py-2 text-sm rounded-md ${
+                                                                link.active
+                                                                    ? "bg-indigo-600 text-white"
+                                                                    : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
+                                                            }`}
+                                                            dangerouslySetInnerHTML={{
+                                                                __html: link.label,
+                                                            }}
+                                                        />
+                                                    ) : (
+                                                        <span
+                                                            key={index}
+                                                            className="px-3 py-2 text-sm rounded-md bg-gray-100 text-gray-400 border border-gray-200 cursor-not-allowed"
+                                                            dangerouslySetInnerHTML={{
+                                                                __html: link.label,
+                                                            }}
+                                                        />
+                                                    )
+                                            )}
+                                        </div>
                                     </div>
-                                    <div className="flex space-x-1">
-                                        {questions.links.map((link, index) => (
-                                            <Link
-                                                key={index}
-                                                href={link.url}
-                                                className={`px-3 py-2 text-sm rounded-md ${
-                                                    link.active
-                                                        ? "bg-indigo-600 text-white"
-                                                        : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
-                                                }`}
-                                                dangerouslySetInnerHTML={{
-                                                    __html: link.label,
-                                                }}
-                                            />
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
+                                )}
                         </div>
                     </div>
                 </div>

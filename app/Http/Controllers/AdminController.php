@@ -46,7 +46,10 @@ class AdminController extends Controller
     $usersByRole = User::select('role', DB::raw('count(*) as count'))
       ->groupBy('role')
       ->get()
-      ->pluck('count', 'role');
+      ->mapWithKeys(function ($item) {
+        return [$item->role->value => $item->count];
+      })
+      ->toArray() ?: [];
 
     return Inertia::render('Admin/Dashboard', [
       'user' => $user,
@@ -291,13 +294,22 @@ class AdminController extends Controller
       'total_questions' => Question::count(),
       'by_grade' => Question::select('grade_level', DB::raw('count(*) as count'))
         ->groupBy('grade_level')
-        ->pluck('count', 'grade_level'),
+        ->pluck('count', 'grade_level')
+        ->toArray() ?: [],
       'by_type' => Question::select('question_type', DB::raw('count(*) as count'))
         ->groupBy('question_type')
-        ->pluck('count', 'question_type'),
+        ->get()
+        ->mapWithKeys(function ($item) {
+          return [$item->question_type->value => $item->count];
+        })
+        ->toArray() ?: [],
       'by_difficulty' => Question::select('difficulty', DB::raw('count(*) as count'))
         ->groupBy('difficulty')
-        ->pluck('count', 'difficulty'),
+        ->get()
+        ->mapWithKeys(function ($item) {
+          return [$item->difficulty->value => $item->count];
+        })
+        ->toArray() ?: [],
     ];
 
     return Inertia::render('Admin/QuestionBankManagement', [

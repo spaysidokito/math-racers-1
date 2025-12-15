@@ -25,21 +25,29 @@ export default function SystemLogs({
         <AuthenticatedLayout
             header={
                 <h2 className="text-xl font-semibold leading-tight text-gray-800">
-                    System Activity Logs
+                    📊 System Activity Logs
                 </h2>
             }
         >
             <Head title="System Logs" />
 
-            <div className="py-12">
+            <div className="py-12 bg-gradient-to-br from-gray-50 to-green-50">
                 <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
+                    {/* Page Header */}
+                    <div className="mb-8 text-center">
+                        <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                            📊 System Activity
+                        </h1>
+                        <p className="text-gray-600">Monitor platform usage and performance</p>
+                    </div>
+
                     {/* Filters */}
-                    <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
-                        <div className="p-6">
+                    <div className="bg-white overflow-hidden shadow-xl rounded-2xl border-2 border-green-100 mb-6">
+                        <div className="p-6 bg-gradient-to-r from-green-50 to-emerald-50">
                             <div className="flex flex-wrap gap-4">
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                                        Date Range
+                                    <label className="block text-sm font-bold text-gray-700 mb-2">
+                                        📅 Date Range
                                     </label>
                                     <select
                                         value={data.date_filter}
@@ -50,7 +58,7 @@ export default function SystemLogs({
                                             );
                                             setTimeout(handleFilterChange, 100);
                                         }}
-                                        className="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                        className="rounded-xl border-2 border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 px-4 py-2 font-semibold"
                                     >
                                         {Object.entries(dateFilterOptions).map(
                                             ([value, label]) => (
@@ -70,43 +78,48 @@ export default function SystemLogs({
 
                     {/* System Statistics */}
                     <div className="grid grid-cols-1 gap-6 mb-8 md:grid-cols-2 lg:grid-cols-5">
-                        <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
-                            <div className="text-sm font-medium text-gray-500">
+                        <div className="bg-gradient-to-br from-green-500 to-emerald-600 overflow-hidden shadow-xl rounded-2xl p-6 text-white transform hover:scale-105 transition-all">
+                            <div className="text-4xl mb-2">✅</div>
+                            <div className="text-sm font-medium opacity-90">
                                 Active Users
                             </div>
-                            <div className="text-2xl font-bold text-green-600">
+                            <div className="text-3xl font-bold">
                                 {systemStats.total_active_users}
                             </div>
                         </div>
-                        <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
-                            <div className="text-sm font-medium text-gray-500">
+                        <div className="bg-gradient-to-br from-blue-500 to-cyan-600 overflow-hidden shadow-xl rounded-2xl p-6 text-white transform hover:scale-105 transition-all">
+                            <div className="text-4xl mb-2">🆕</div>
+                            <div className="text-sm font-medium opacity-90">
                                 New Users
                             </div>
-                            <div className="text-2xl font-bold text-blue-600">
+                            <div className="text-3xl font-bold">
                                 {systemStats.new_users_period}
                             </div>
                         </div>
-                        <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
-                            <div className="text-sm font-medium text-gray-500">
+                        <div className="bg-gradient-to-br from-purple-500 to-pink-600 overflow-hidden shadow-xl rounded-2xl p-6 text-white transform hover:scale-105 transition-all">
+                            <div className="text-4xl mb-2">🎯</div>
+                            <div className="text-sm font-medium opacity-90">
                                 Quiz Attempts
                             </div>
-                            <div className="text-2xl font-bold text-purple-600">
+                            <div className="text-3xl font-bold">
                                 {systemStats.total_quiz_attempts}
                             </div>
                         </div>
-                        <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
-                            <div className="text-sm font-medium text-gray-500">
+                        <div className="bg-gradient-to-br from-orange-500 to-red-600 overflow-hidden shadow-xl rounded-2xl p-6 text-white transform hover:scale-105 transition-all">
+                            <div className="text-4xl mb-2">🏁</div>
+                            <div className="text-sm font-medium opacity-90">
                                 Completed Quizzes
                             </div>
-                            <div className="text-2xl font-bold text-orange-600">
+                            <div className="text-3xl font-bold">
                                 {systemStats.completed_quizzes}
                             </div>
                         </div>
-                        <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
-                            <div className="text-sm font-medium text-gray-500">
+                        <div className="bg-gradient-to-br from-indigo-500 to-purple-600 overflow-hidden shadow-xl rounded-2xl p-6 text-white transform hover:scale-105 transition-all">
+                            <div className="text-4xl mb-2">❓</div>
+                            <div className="text-sm font-medium opacity-90">
                                 Questions Created
                             </div>
-                            <div className="text-2xl font-bold text-indigo-600">
+                            <div className="text-3xl font-bold">
                                 {systemStats.questions_created}
                             </div>
                         </div>

@@ -193,14 +193,15 @@ class TeacherController extends Controller
 
     // Get progress data by topic
     $progressByTopic = $student->progress
-      ->keyBy('question_type')
-      ->map(function ($progress) {
+      ->mapWithKeys(function ($progress) {
         return [
-          'total_points' => $progress->total_points,
-          'mastery_level' => $progress->mastery_percentage,
-          'mastery_category' => $progress->mastery_category,
-          'badges_earned' => $progress->badges_earned ?? [],
-          'last_activity' => $progress->last_activity,
+          $progress->question_type->value => [
+            'total_points' => $progress->total_points,
+            'mastery_level' => $progress->mastery_percentage,
+            'mastery_category' => $progress->mastery_category,
+            'badges_earned' => $progress->badges_earned ?? [],
+            'last_activity' => $progress->last_activity,
+          ]
         ];
       });
 

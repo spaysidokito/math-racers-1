@@ -74,44 +74,47 @@ export default function RaceTrack({
                 </div>
 
                 {/* Start line with animation */}
-                <div className="absolute right-0 top-0 h-full w-3 bg-gradient-to-l from-white to-gray-200 opacity-90">
+                <div className="absolute left-0 top-0 h-full w-3 bg-gradient-to-r from-white to-gray-200 opacity-90">
                     <div className="absolute inset-0 bg-white animate-pulse"></div>
                 </div>
-                <div className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white text-xs font-bold bg-black bg-opacity-50 px-2 py-1 rounded">
+                <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white text-xs font-bold bg-black bg-opacity-50 px-2 py-1 rounded">
                     START
                 </div>
 
                 {/* Finish line with checkered pattern */}
-                <div className="absolute left-0 top-0 h-full w-3 bg-gradient-to-r from-white to-gray-200 opacity-90 racing-stripes"></div>
-                <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white text-lg animate-bounce">
+                <div className="absolute right-0 top-0 h-full w-3 bg-gradient-to-l from-white to-gray-200 opacity-90 racing-stripes"></div>
+                <div className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white text-lg animate-bounce">
                     🏁
                 </div>
 
                 {/* Enhanced progress markers */}
-                <div className="absolute top-0 right-1/4 h-full w-1 bg-white opacity-40">
+                <div className="absolute top-0 left-1/4 h-full w-1 bg-white opacity-40">
                     <div className="absolute top-1/2 transform -translate-y-1/2 -translate-x-1/2 text-xs text-white">
                         25%
                     </div>
                 </div>
-                <div className="absolute top-0 right-1/2 h-full w-1 bg-white opacity-40">
+                <div className="absolute top-0 left-1/2 h-full w-1 bg-white opacity-40">
                     <div className="absolute top-1/2 transform -translate-y-1/2 -translate-x-1/2 text-xs text-white">
                         50%
                     </div>
                 </div>
-                <div className="absolute top-0 right-3/4 h-full w-1 bg-white opacity-40">
+                <div className="absolute top-0 left-3/4 h-full w-1 bg-white opacity-40">
                     <div className="absolute top-1/2 transform -translate-y-1/2 -translate-x-1/2 text-xs text-white">
                         75%
                     </div>
                 </div>
 
-                {/* Enhanced racer with trail effect */}
+                {/* Enhanced racer with trail effect - Using a wrapper to preserve flip during animation */}
                 <div
-                    className={`absolute top-1/2 transform -translate-y-1/2 text-5xl transition-all duration-1000 ease-out ${animationClass} z-10`}
+                    className={`absolute top-1/2 text-5xl transition-all duration-1000 ease-out z-10`}
                     style={{
-                        right: `${Math.max(2, Math.min(racerProgress, 88))}%`,
+                        left: `${Math.max(2, Math.min(racerProgress, 88))}%`,
+                        transform: 'translateY(-50%) scaleX(-1)', // Flip horizontally to face right
                     }}
                 >
-                    🏎️
+                    <div className={animationClass}>
+                        🏎️
+                    </div>
                 </div>
 
                 {/* Speed trail effect */}
@@ -119,7 +122,7 @@ export default function RaceTrack({
                     <div
                         className="absolute top-1/2 transform -translate-y-1/2 text-2xl opacity-50 transition-all duration-1000"
                         style={{
-                            right: `${Math.max(
+                            left: `${Math.max(
                                 0,
                                 Math.min(racerProgress - 5, 85)
                             )}%`,
@@ -161,7 +164,7 @@ export default function RaceTrack({
                 {/* Enhanced progress bar */}
                 <div className="relative w-full bg-white bg-opacity-20 rounded-full h-4 shadow-inner">
                     <div
-                        className="bg-gradient-to-l from-yellow-400 via-orange-500 to-red-500 h-4 rounded-full transition-all duration-1000 shadow-playful relative overflow-hidden"
+                        className="bg-gradient-to-r from-red-500 via-orange-500 to-yellow-400 h-4 rounded-full transition-all duration-1000 shadow-playful relative overflow-hidden"
                         style={{ width: `${racerProgress}%` }}
                     >
                         {/* Animated shine effect */}
@@ -172,7 +175,7 @@ export default function RaceTrack({
                     {racerProgress > 10 && (
                         <div
                             className="absolute top-1/2 transform -translate-y-1/2 bg-white text-gray-800 text-xs font-bold px-2 py-1 rounded-full shadow-lg"
-                            style={{ right: `${Math.min(racerProgress, 85)}%` }}
+                            style={{ left: `${Math.min(racerProgress, 85)}%` }}
                         >
                             {Math.round(racerProgress)}%
                         </div>

@@ -1,19 +1,26 @@
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import PlayfulButton from "@/Components/PlayfulButton";
-import { Head, Link, useForm } from "@inertiajs/react";
+import { Head, Link, router } from "@inertiajs/react";
 import { useState } from "react";
 
 export default function StudentDashboard({ user }) {
     const [selectedGrade, setSelectedGrade] = useState(
         user.grade_level || null
     );
-    const { post, processing } = useForm();
+    const [processing, setProcessing] = useState(false);
 
     const handleGradeSelection = (grade) => {
         setSelectedGrade(grade);
-        post(route("student.select-grade"), {
-            data: { grade_level: grade },
-        });
+        setProcessing(true);
+        router.post(
+            route("student.select-grade"),
+            {
+                grade_level: grade,
+            },
+            {
+                onFinish: () => setProcessing(false),
+            }
+        );
     };
 
     const grades = [

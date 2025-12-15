@@ -9,7 +9,7 @@ use Inertia\Inertia;
 Route::get('/', fn() => Inertia::render('Landing'));
 
 Route::get('/dashboard', [DashboardController::class, 'index'])
-    ->middleware(['auth', 'verified'])
+    ->middleware(['auth'])
     ->name('dashboard');
 
 Route::middleware('auth')->group(function () {
@@ -26,9 +26,9 @@ Route::middleware(['auth', 'role:student'])->group(function () {
         Route::get('/topics/{grade}', [\App\Http\Controllers\StudentController::class, 'topics'])->name('topics');
         Route::get('/difficulty/{grade}/{topic}', [\App\Http\Controllers\StudentController::class, 'selectDifficulty'])->name('difficulty');
         Route::post('/quiz/start', [\App\Http\Controllers\StudentController::class, 'startQuiz'])->name('quiz.start');
-        Route::get('/quiz/{session}', [\App\Http\Controllers\StudentController::class, 'quiz'])->name('quiz');
-        Route::post('/quiz/{session}/answer', [\App\Http\Controllers\StudentController::class, 'submitAnswer'])->name('quiz.answer');
-        Route::post('/quiz/{session}/complete', [\App\Http\Controllers\StudentController::class, 'completeQuiz'])->name('quiz.complete');
+        Route::get('/quiz/{sessionId}', [\App\Http\Controllers\StudentController::class, 'quiz'])->name('quiz');
+        Route::post('/quiz/{sessionId}/answer', [\App\Http\Controllers\StudentController::class, 'submitAnswer'])->name('quiz.answer');
+        Route::post('/quiz/{sessionId}/complete', [\App\Http\Controllers\StudentController::class, 'completeQuiz'])->name('quiz.complete');
         Route::get('/progress', [\App\Http\Controllers\StudentController::class, 'progress'])->name('progress');
         Route::get('/leaderboard', [\App\Http\Controllers\StudentController::class, 'leaderboard'])->name('leaderboard');
     });

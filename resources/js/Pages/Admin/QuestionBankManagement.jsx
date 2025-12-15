@@ -4,9 +4,14 @@ import { useState } from "react";
 
 export default function QuestionBankManagement({
     questions,
-    creators,
-    questionStats,
-    filters,
+    creators = [],
+    questionStats = {
+        total_questions: 0,
+        by_grade: {},
+        by_type: {},
+        by_difficulty: {},
+    },
+    filters = {},
 }) {
     const [selectedQuestions, setSelectedQuestions] = useState([]);
     const [showBulkDeleteModal, setShowBulkDeleteModal] = useState(false);
@@ -28,7 +33,7 @@ export default function QuestionBankManagement({
 
     const handleSelectAll = (e) => {
         if (e.target.checked) {
-            setSelectedQuestions(questions.data.map((q) => q.id));
+            setSelectedQuestions(questions?.data?.map((q) => q.id) || []);
         } else {
             setSelectedQuestions([]);
         }
@@ -67,63 +72,75 @@ export default function QuestionBankManagement({
         <AuthenticatedLayout
             header={
                 <h2 className="text-xl font-semibold leading-tight text-gray-800">
-                    Question Bank Management
+                    ❓ Question Bank Management
                 </h2>
             }
         >
             <Head title="Question Bank Management" />
 
-            <div className="py-12">
+            <div className="py-12 bg-gradient-to-br from-gray-50 to-purple-50">
                 <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
+                    {/* Page Header */}
+                    <div className="mb-8 text-center">
+                        <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                            ❓ Question Bank
+                        </h1>
+                        <p className="text-gray-600">Manage all quiz questions</p>
+                    </div>
+
                     {/* Statistics Cards */}
                     <div className="grid grid-cols-1 gap-6 mb-8 md:grid-cols-2 lg:grid-cols-4">
-                        <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
-                            <div className="text-sm font-medium text-gray-500">
+                        <div className="bg-gradient-to-br from-purple-500 to-pink-600 overflow-hidden shadow-xl rounded-2xl p-6 text-white transform hover:scale-105 transition-all">
+                            <div className="text-4xl mb-2">❓</div>
+                            <div className="text-sm font-medium opacity-90">
                                 Total Questions
                             </div>
-                            <div className="text-2xl font-bold text-gray-900">
+                            <div className="text-3xl font-bold">
                                 {questionStats.total_questions}
                             </div>
                         </div>
-                        <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
-                            <div className="text-sm font-medium text-gray-500">
+                        <div className="bg-gradient-to-br from-green-500 to-emerald-600 overflow-hidden shadow-xl rounded-2xl p-6 text-white transform hover:scale-105 transition-all">
+                            <div className="text-4xl mb-2">📚</div>
+                            <div className="text-sm font-medium opacity-90">
                                 By Grade
                             </div>
-                            <div className="text-sm text-gray-600 space-y-1">
+                            <div className="text-sm space-y-1 mt-2">
                                 {Object.entries(questionStats.by_grade).map(
                                     ([grade, count]) => (
-                                        <div key={grade}>
+                                        <div key={grade} className="font-semibold">
                                             Grade {grade}: {count}
                                         </div>
                                     )
                                 )}
                             </div>
                         </div>
-                        <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
-                            <div className="text-sm font-medium text-gray-500">
+                        <div className="bg-gradient-to-br from-blue-500 to-cyan-600 overflow-hidden shadow-xl rounded-2xl p-6 text-white transform hover:scale-105 transition-all">
+                            <div className="text-4xl mb-2">🎯</div>
+                            <div className="text-sm font-medium opacity-90">
                                 By Type
                             </div>
-                            <div className="text-sm text-gray-600 space-y-1">
+                            <div className="text-sm space-y-1 mt-2">
                                 {Object.entries(questionStats.by_type).map(
                                     ([type, count]) => (
-                                        <div key={type} className="capitalize">
+                                        <div key={type} className="capitalize font-semibold">
                                             {type}: {count}
                                         </div>
                                     )
                                 )}
                             </div>
                         </div>
-                        <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
-                            <div className="text-sm font-medium text-gray-500">
+                        <div className="bg-gradient-to-br from-orange-500 to-red-600 overflow-hidden shadow-xl rounded-2xl p-6 text-white transform hover:scale-105 transition-all">
+                            <div className="text-4xl mb-2">⚡</div>
+                            <div className="text-sm font-medium opacity-90">
                                 By Difficulty
                             </div>
-                            <div className="text-sm text-gray-600 space-y-1">
+                            <div className="text-sm space-y-1 mt-2">
                                 {Object.entries(
                                     questionStats.by_difficulty
                                 ).map(([difficulty, count]) => (
                                     <div
                                         key={difficulty}
-                                        className="capitalize"
+                                        className="capitalize font-semibold"
                                     >
                                         {difficulty}: {count}
                                     </div>
@@ -250,8 +267,10 @@ export default function QuestionBankManagement({
                                                 onChange={handleSelectAll}
                                                 checked={
                                                     selectedQuestions.length ===
-                                                        questions.data.length &&
-                                                    questions.data.length > 0
+                                                        (questions?.data
+                                                            ?.length || 0) &&
+                                                    (questions?.data?.length ||
+                                                        0) > 0
                                                 }
                                                 className="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                                             />
@@ -271,7 +290,7 @@ export default function QuestionBankManagement({
                                     </tr>
                                 </thead>
                                 <tbody className="bg-white divide-y divide-gray-200">
-                                    {questions.data.map((question) => (
+                                    {questions?.data?.map((question) => (
                                         <tr
                                             key={question.id}
                                             className={
@@ -330,29 +349,39 @@ export default function QuestionBankManagement({
                         </div>
 
                         {/* Pagination */}
-                        {questions.links && (
+                        {questions?.links && questions.links.length > 3 && (
                             <div className="px-6 py-4 border-t border-gray-200">
                                 <div className="flex items-center justify-between">
                                     <div className="text-sm text-gray-700">
-                                        Showing {questions.from} to{" "}
-                                        {questions.to} of {questions.total}{" "}
-                                        results
+                                        Showing {questions.from || 0} to{" "}
+                                        {questions.to || 0} of{" "}
+                                        {questions.total || 0} results
                                     </div>
                                     <div className="flex space-x-1">
-                                        {questions.links.map((link, index) => (
-                                            <Link
-                                                key={index}
-                                                href={link.url}
-                                                className={`px-3 py-2 text-sm rounded ${
-                                                    link.active
-                                                        ? "bg-indigo-600 text-white"
-                                                        : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
-                                                }`}
-                                                dangerouslySetInnerHTML={{
-                                                    __html: link.label,
-                                                }}
-                                            />
-                                        ))}
+                                        {questions.links.map((link, index) =>
+                                            link.url ? (
+                                                <Link
+                                                    key={index}
+                                                    href={link.url}
+                                                    className={`px-3 py-2 text-sm rounded ${
+                                                        link.active
+                                                            ? "bg-indigo-600 text-white"
+                                                            : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
+                                                    }`}
+                                                    dangerouslySetInnerHTML={{
+                                                        __html: link.label,
+                                                    }}
+                                                />
+                                            ) : (
+                                                <span
+                                                    key={index}
+                                                    className="px-3 py-2 text-sm rounded bg-gray-100 text-gray-400 border border-gray-200 cursor-not-allowed"
+                                                    dangerouslySetInnerHTML={{
+                                                        __html: link.label,
+                                                    }}
+                                                />
+                                            )
+                                        )}
                                     </div>
                                 </div>
                             </div>

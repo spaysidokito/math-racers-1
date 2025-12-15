@@ -11,24 +11,51 @@ export default function AuthenticatedLayout({ header, children }) {
     const [showingNavigationDropdown, setShowingNavigationDropdown] =
         useState(false);
 
+    const getRoleGradient = () => {
+        switch (user.role) {
+            case "admin":
+                return "from-purple-600 to-indigo-700";
+            case "teacher":
+                return "from-blue-600 to-cyan-700";
+            case "student":
+                return "from-green-600 to-emerald-700";
+            default:
+                return "from-gray-600 to-gray-700";
+        }
+    };
+
+    const getRoleEmoji = () => {
+        switch (user.role) {
+            case "admin":
+                return "👑";
+            case "teacher":
+                return "👨‍🏫";
+            case "student":
+                return "🎓";
+            default:
+                return "👤";
+        }
+    };
+
     return (
         <div className="min-h-screen bg-gray-100">
-            <nav className="border-b border-gray-100 bg-white">
+            <nav className={`bg-gradient-to-r ${getRoleGradient()} shadow-lg`}>
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="flex h-16 justify-between">
                         <div className="flex">
                             <div className="flex shrink-0 items-center">
-                                <Link href="/">
-                                    <ApplicationLogo className="block h-9 w-auto fill-current text-gray-800" />
+                                <Link href="/" className="flex items-center space-x-2 group">
+                                    <div className="text-3xl transform group-hover:scale-110 transition-transform">🏎️</div>
+                                    <span className="text-white font-bold text-xl hidden sm:block">Math Racers</span>
                                 </Link>
                             </div>
 
-                            <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                            <div className="hidden space-x-2 sm:-my-px sm:ms-10 sm:flex">
                                 <NavLink
                                     href={route("dashboard")}
                                     active={route().current("dashboard")}
                                 >
-                                    Dashboard
+                                    🏠 Dashboard
                                 </NavLink>
 
                                 {/* Admin Navigation */}
@@ -40,7 +67,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                                 "admin.users"
                                             )}
                                         >
-                                            Users
+                                            👥 Users
                                         </NavLink>
                                         <NavLink
                                             href={route("admin.question-bank")}
@@ -48,7 +75,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                                 "admin.question-bank"
                                             )}
                                         >
-                                            Questions
+                                            ❓ Questions
                                         </NavLink>
                                         <NavLink
                                             href={route("admin.system-logs")}
@@ -56,7 +83,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                                 "admin.system-logs"
                                             )}
                                         >
-                                            System Logs
+                                            📋 System Logs
                                         </NavLink>
                                     </>
                                 )}
@@ -70,7 +97,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                                 "student.progress"
                                             )}
                                         >
-                                            Progress
+                                            📊 Progress
                                         </NavLink>
                                         <NavLink
                                             href={route("student.leaderboard")}
@@ -78,7 +105,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                                 "student.leaderboard"
                                             )}
                                         >
-                                            Leaderboard
+                                            🏆 Leaderboard
                                         </NavLink>
                                     </>
                                 )}
@@ -94,7 +121,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                                 "teacher.questions.*"
                                             )}
                                         >
-                                            Questions
+                                            ❓ Questions
                                         </NavLink>
                                         <NavLink
                                             href={route(
@@ -104,7 +131,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                                 "teacher.student-performance"
                                             )}
                                         >
-                                            Students
+                                            👨‍🎓 Students
                                         </NavLink>
                                     </>
                                 )}
@@ -118,8 +145,9 @@ export default function AuthenticatedLayout({ header, children }) {
                                         <span className="inline-flex rounded-md">
                                             <button
                                                 type="button"
-                                                className="inline-flex items-center rounded-md border border-transparent bg-white px-3 py-2 text-sm font-medium leading-4 text-gray-500 transition duration-150 ease-in-out hover:text-gray-700 focus:outline-none"
+                                                className="inline-flex items-center rounded-xl bg-white/20 backdrop-blur-sm px-4 py-2 text-sm font-bold leading-4 text-white transition duration-150 ease-in-out hover:bg-white/30 focus:outline-none border border-white/30 shadow-lg"
                                             >
+                                                <span className="mr-2">{getRoleEmoji()}</span>
                                                 {user.name}
 
                                                 <svg
@@ -142,14 +170,14 @@ export default function AuthenticatedLayout({ header, children }) {
                                         <Dropdown.Link
                                             href={route("profile.edit")}
                                         >
-                                            Profile
+                                            👤 Profile
                                         </Dropdown.Link>
                                         <Dropdown.Link
                                             href={route("logout")}
                                             method="post"
                                             as="button"
                                         >
-                                            Log Out
+                                            🚪 Log Out
                                         </Dropdown.Link>
                                     </Dropdown.Content>
                                 </Dropdown>
@@ -163,7 +191,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                         (previousState) => !previousState
                                     )
                                 }
-                                className="inline-flex items-center justify-center rounded-md p-2 text-gray-400 transition duration-150 ease-in-out hover:bg-gray-100 hover:text-gray-500 focus:bg-gray-100 focus:text-gray-500 focus:outline-none"
+                                className="inline-flex items-center justify-center rounded-xl p-2 text-white bg-white/20 backdrop-blur-sm transition duration-150 ease-in-out hover:bg-white/30 focus:bg-white/30 focus:outline-none border border-white/30"
                             >
                                 <svg
                                     className="h-6 w-6"
@@ -202,7 +230,7 @@ export default function AuthenticatedLayout({ header, children }) {
                 <div
                     className={
                         (showingNavigationDropdown ? "block" : "hidden") +
-                        " sm:hidden"
+                        " sm:hidden bg-white/10 backdrop-blur-sm"
                     }
                 >
                     <div className="space-y-1 pb-3 pt-2">
@@ -210,7 +238,7 @@ export default function AuthenticatedLayout({ header, children }) {
                             href={route("dashboard")}
                             active={route().current("dashboard")}
                         >
-                            Dashboard
+                            🏠 Dashboard
                         </ResponsiveNavLink>
 
                         {/* Admin Navigation */}
@@ -220,7 +248,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                     href={route("admin.users")}
                                     active={route().current("admin.users")}
                                 >
-                                    Users
+                                    👥 Users
                                 </ResponsiveNavLink>
                                 <ResponsiveNavLink
                                     href={route("admin.question-bank")}
@@ -228,7 +256,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                         "admin.question-bank"
                                     )}
                                 >
-                                    Questions
+                                    ❓ Questions
                                 </ResponsiveNavLink>
                                 <ResponsiveNavLink
                                     href={route("admin.system-logs")}
@@ -236,7 +264,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                         "admin.system-logs"
                                     )}
                                 >
-                                    System Logs
+                                    📋 System Logs
                                 </ResponsiveNavLink>
                             </>
                         )}
@@ -248,7 +276,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                     href={route("student.progress")}
                                     active={route().current("student.progress")}
                                 >
-                                    Progress
+                                    📊 Progress
                                 </ResponsiveNavLink>
                                 <ResponsiveNavLink
                                     href={route("student.leaderboard")}
@@ -256,7 +284,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                         "student.leaderboard"
                                     )}
                                 >
-                                    Leaderboard
+                                    🏆 Leaderboard
                                 </ResponsiveNavLink>
                             </>
                         )}
@@ -270,7 +298,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                         "teacher.questions.*"
                                     )}
                                 >
-                                    Questions
+                                    ❓ Questions
                                 </ResponsiveNavLink>
                                 <ResponsiveNavLink
                                     href={route("teacher.student-performance")}
@@ -278,32 +306,33 @@ export default function AuthenticatedLayout({ header, children }) {
                                         "teacher.student-performance"
                                     )}
                                 >
-                                    Students
+                                    👨‍🎓 Students
                                 </ResponsiveNavLink>
                             </>
                         )}
                     </div>
 
-                    <div className="border-t border-gray-200 pb-1 pt-4">
+                    <div className="border-t border-white/20 pb-1 pt-4">
                         <div className="px-4">
-                            <div className="text-base font-medium text-gray-800">
+                            <div className="text-base font-bold text-white flex items-center">
+                                <span className="mr-2">{getRoleEmoji()}</span>
                                 {user.name}
                             </div>
-                            <div className="text-sm font-medium text-gray-500">
+                            <div className="text-sm font-medium text-white/80">
                                 {user.email}
                             </div>
                         </div>
 
                         <div className="mt-3 space-y-1">
                             <ResponsiveNavLink href={route("profile.edit")}>
-                                Profile
+                                👤 Profile
                             </ResponsiveNavLink>
                             <ResponsiveNavLink
                                 method="post"
                                 href={route("logout")}
                                 as="button"
                             >
-                                Log Out
+                                🚪 Log Out
                             </ResponsiveNavLink>
                         </div>
                     </div>

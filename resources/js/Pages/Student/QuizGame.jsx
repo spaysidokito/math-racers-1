@@ -25,13 +25,15 @@ export default function QuizGame({
     const [racerPosition, setRacerPosition] = useState(0);
     const [gameCompleted, setGameCompleted] = useState(false);
     const [finalScore, setFinalScore] = useState(null);
+    const [answersToSubmit, setAnswersToSubmit] = useState([]);
 
     const timerRef = useRef(null);
     const answerInputRef = useRef(null);
 
     const currentQuestion = questions[currentQuestionIndex];
-    const progress = ((currentQuestionIndex + 1) / totalQuestions) * 100;
-    const racerProgress = (correctAnswers / totalQuestions) * 100;
+    const actualTotalQuestions = questions.length;
+    const progress = ((currentQuestionIndex + 1) / actualTotalQuestions) * 100;
+    const racerProgress = (correctAnswers / actualTotalQuestions) * 100;
 
     // Timer effect
     useEffect(() => {
@@ -105,11 +107,19 @@ export default function QuizGame({
             setTimeout(() => soundEffects.playSparkle(), 200);
             setCorrectAnswers((prev) => prev + 1);
             setRacerPosition((prev) =>
-                Math.min(prev + 100 / totalQuestions, 100)
+                Math.min(prev + 100 / questions.length, 100)
             );
         } else {
             soundEffects.playError();
         }
+
+        // Store answer locally to submit at the end
+        setAnswersToSubmit(prev => [...prev, {
+            question_id: currentQuestion.id,
+            answer: answerValue,
+            time_taken: timeTaken,
+            is_correct: isCorrect
+        }]);
 
         // Show feedback for 2 seconds then move to next question
         setTimeout(() => {
@@ -117,34 +127,13 @@ export default function QuizGame({
             setUserAnswer("");
             setIsAnswering(false);
 
-            if (currentQuestionIndex + 1 >= totalQuestions) {
+            if (currentQuestionIndex + 1 >= questions.length) {
                 handleQuizComplete();
             } else {
                 setCurrentQuestionIndex((prev) => prev + 1);
                 setQuestionStartTime(Date.now());
             }
         }, 2000);
-
-        // Submit answer to backend (fire and forget)
-        try {
-            await router.post(
-                route("student.quiz.answer", { session: sessionId }),
-                {
-                    question_id: currentQuestion.id,
-                    answer: answerValue,
-                    time_taken: timeTaken,
-                },
-                {
-                    preserveState: true,
-                    preserveScroll: true,
-                    onError: (errors) => {
-                        console.error("Error submitting answer:", errors);
-                    },
-                }
-            );
-        } catch (error) {
-            console.error("Error submitting answer:", error);
-        }
     };
 
     const handleQuizComplete = async () => {
@@ -152,28 +141,23 @@ export default function QuizGame({
 
         setGameCompleted(true);
         soundEffects.playCompletion();
-        // Add power-up sound for game completion
         setTimeout(() => soundEffects.playPowerUp(), 1000);
 
-        try {
-            await router.post(
-                route("student.quiz.complete", { session: sessionId }),
-                {
-                    total_time: 300 - timeLeft,
+        router.post(
+            route("student.quiz.complete", { sessionId: sessionId }),
+            {
+                total_time: 300 - timeLeft,
+                answers: answersToSubmit,
+            },
+            {
+                onSuccess: (page) => {
+                    setFinalScore(page.props.finalScore);
                 },
-                {
-                    preserveState: true,
-                    onSuccess: (page) => {
-                        setFinalScore(page.props.finalScore);
-                    },
-                    onError: (errors) => {
-                        console.error("Error completing quiz:", errors);
-                    },
-                }
-            );
-        } catch (error) {
-            console.error("Error completing quiz:", error);
-        }
+                onError: (errors) => {
+                    console.error("Error completing quiz:", errors);
+                },
+            }
+        );
     };
 
     const getTopicConfig = (topic) => {

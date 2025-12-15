@@ -25,12 +25,16 @@ class StudentController extends Controller
 
   public function selectGrade(Request $request)
   {
+    \Log::info('selectGrade called', ['data' => $request->all()]);
+
     $request->validate([
       'grade_level' => 'required|integer|min:1|max:3'
     ]);
 
     $user = Auth::user();
     $user->update(['grade_level' => $request->grade_level]);
+
+    \Log::info('Redirecting to topics', ['grade' => $request->grade_level, 'url' => route('student.topics', ['grade' => $request->grade_level])]);
 
     return redirect()->route('student.topics', ['grade' => $request->grade_level]);
   }
@@ -134,13 +138,15 @@ class StudentController extends Controller
       'time_taken' => 0,
     ]);
 
-    return redirect()->route('student.quiz', ['session' => $session->id]);
+    \Log::info('Quiz session created', ['session_id' => $session->id, 'redirect_url' => route('student.quiz', ['sessionId' => $session->id])]);
+
+    return redirect()->route('student.quiz', ['sessionId' => $session->id]);
   }
 
-  public function quiz($session)
+  public function quiz($sessionId)
   {
     $user = Auth::user();
-    $quizSession = QuizSession::where('id', $session)
+    $quizSession = QuizSession::where('id', $sessionId)
       ->where('student_id', $user->id)
       ->whereNull('completed_at')
       ->firstOrFail();
@@ -174,7 +180,7 @@ class StudentController extends Controller
     ]);
   }
 
-  public function submitAnswer(Request $request, $session)
+  public function submitAnswer(Request $request, $sessionId)
   {
     $request->validate([
       'question_id' => 'required|exists:questions,id',
@@ -183,7 +189,7 @@ class StudentController extends Controller
     ]);
 
     $user = Auth::user();
-    $quizSession = QuizSession::where('id', $session)
+    $quizSession = QuizSession::where('id', $sessionId)
       ->where('student_id', $user->id)
       ->whereNull('completed_at')
       ->firstOrFail();
@@ -205,23 +211,49 @@ class StudentController extends Controller
       $quizSession->increment('correct_answers');
     }
 
-    // Return success response
-    return back()->with('success', 'Answer submitted successfully');
+    // Return success response (JSON for AJAX requests)
+    return response()->json([
+      'success' => true,
+      'is_correct' => $isCorrect,
+      'message' => 'Answer submitted successfully'
+    ]);
   }
 
-  public function completeQuiz(Request $request, $session)
+  public function completeQuiz(Request $request, $sessionId)
   {
     $request->validate([
-      'total_time' => 'required|integer|min:0'
+      'total_time' => 'required|integer|min:0',
+      'answers' => 'required|array',
+      'answers.*.question_id' => 'required|exists:questions,id',
+      'answers.*.answer' => 'required|string',
+      'answers.*.time_taken' => 'required|integer|min:0',
+      'answers.*.is_correct' => 'required|boolean'
     ]);
 
     $user = Auth::user();
-    $quizSession = QuizSession::where('id', $session)
+    $quizSession = QuizSession::where('id', $sessionId)
       ->where('student_id', $user->id)
       ->whereNull('completed_at')
       ->firstOrFail();
 
-    // Update session with time taken
+    // Save all answers
+    $correctCount = 0;
+    foreach ($request->answers as $answerData) {
+      QuizAnswer::create([
+        'quiz_session_id' => $quizSession->id,
+        'question_id' => $answerData['question_id'],
+        'student_answer' => $answerData['answer'],
+        'is_correct' => $answerData['is_correct'],
+        'time_taken' => $answerData['time_taken']
+      ]);
+
+      if ($answerData['is_correct']) {
+        $correctCount++;
+      }
+    }
+
+    // Update session with correct answers count
+    $quizSession->correct_answers = $correctCount;
     $quizSession->time_taken = $request->total_time;
 
     // Complete quiz session (this will calculate score and update progress)

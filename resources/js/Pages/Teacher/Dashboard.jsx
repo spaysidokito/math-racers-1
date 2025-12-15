@@ -36,20 +36,20 @@ export default function Dashboard({
             header={
                 <div className="flex justify-between items-center">
                     <h2 className="text-xl font-semibold leading-tight text-gray-800">
-                        Teacher Dashboard
+                        👨‍🏫 Teacher Dashboard
                     </h2>
                     <div className="flex space-x-4">
                         <Link
                             href={route("teacher.questions.create")}
-                            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium"
+                            className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-4 py-2 rounded-xl text-sm font-bold shadow-lg transform hover:scale-105 transition-all"
                         >
-                            Add Question
+                            ➕ Add Question
                         </Link>
                         <Link
                             href={route("teacher.student-performance")}
-                            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium"
+                            className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-4 py-2 rounded-xl text-sm font-bold shadow-lg transform hover:scale-105 transition-all"
                         >
-                            View All Students
+                            👥 View All Students
                         </Link>
                     </div>
                 </div>
@@ -57,60 +57,68 @@ export default function Dashboard({
         >
             <Head title="Teacher Dashboard" />
 
-            <div className="py-12">
+            <div className="py-12 bg-gradient-to-br from-gray-50 to-green-50">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+                    {/* Welcome Section */}
+                    <div className="text-center mb-8">
+                        <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                            📚 Class Overview
+                        </h1>
+                        <p className="text-gray-600">Monitor student progress and performance</p>
+                    </div>
+
                     {/* Overview Cards */}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                        <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+                        <div className="bg-gradient-to-br from-blue-500 to-cyan-600 overflow-hidden shadow-xl rounded-2xl p-6 text-white transform hover:scale-105 transition-all">
                             <div className="flex items-center">
-                                <UserGroupIcon className="h-8 w-8 text-blue-600" />
-                                <div className="ml-4">
-                                    <p className="text-sm font-medium text-gray-600">
+                                <div className="text-5xl mr-4">🎓</div>
+                                <div>
+                                    <p className="text-sm font-medium opacity-90">
                                         Total Students
                                     </p>
-                                    <p className="text-2xl font-bold text-gray-900">
+                                    <p className="text-3xl font-bold">
                                         {overview.total_students}
                                     </p>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+                        <div className="bg-gradient-to-br from-green-500 to-emerald-600 overflow-hidden shadow-xl rounded-2xl p-6 text-white transform hover:scale-105 transition-all">
                             <div className="flex items-center">
-                                <ChartBarIcon className="h-8 w-8 text-green-600" />
-                                <div className="ml-4">
-                                    <p className="text-sm font-medium text-gray-600">
+                                <div className="text-5xl mr-4">✅</div>
+                                <div>
+                                    <p className="text-sm font-medium opacity-90">
                                         Active Students
                                     </p>
-                                    <p className="text-2xl font-bold text-gray-900">
+                                    <p className="text-3xl font-bold">
                                         {overview.active_students}
                                     </p>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+                        <div className="bg-gradient-to-br from-purple-500 to-pink-600 overflow-hidden shadow-xl rounded-2xl p-6 text-white transform hover:scale-105 transition-all">
                             <div className="flex items-center">
-                                <BookOpenIcon className="h-8 w-8 text-purple-600" />
-                                <div className="ml-4">
-                                    <p className="text-sm font-medium text-gray-600">
+                                <div className="text-5xl mr-4">❓</div>
+                                <div>
+                                    <p className="text-sm font-medium opacity-90">
                                         Total Questions
                                     </p>
-                                    <p className="text-2xl font-bold text-gray-900">
+                                    <p className="text-3xl font-bold">
                                         {overview.total_questions}
                                     </p>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+                        <div className="bg-gradient-to-br from-orange-500 to-red-600 overflow-hidden shadow-xl rounded-2xl p-6 text-white transform hover:scale-105 transition-all">
                             <div className="flex items-center">
-                                <ClockIcon className="h-8 w-8 text-orange-600" />
-                                <div className="ml-4">
-                                    <p className="text-sm font-medium text-gray-600">
+                                <div className="text-5xl mr-4">🏁</div>
+                                <div>
+                                    <p className="text-sm font-medium opacity-90">
                                         Recent Quizzes
                                     </p>
-                                    <p className="text-2xl font-bold text-gray-900">
+                                    <p className="text-3xl font-bold">
                                         {overview.recent_quizzes_count}
                                     </p>
                                 </div>
