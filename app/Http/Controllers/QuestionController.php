@@ -94,6 +94,12 @@ class QuestionController extends Controller
   {
     $validated = $request->validated();
 
+    // Handle image upload
+    if ($request->hasFile('image')) {
+      $imagePath = $request->file('image')->store('question-images', 'public');
+      $validated['image_path'] = $imagePath;
+    }
+
     $question = Question::create([
       ...$validated,
       'created_by' => Auth::id(),

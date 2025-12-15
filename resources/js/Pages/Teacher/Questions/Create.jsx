@@ -16,6 +16,7 @@ export default function Create({
 }) {
     const { data, setData, post, processing, errors, reset } = useForm({
         question_text: "",
+        image: null,
         question_type: "",
         grade_level: "",
         difficulty: "",
@@ -26,6 +27,7 @@ export default function Create({
 
     const [isMultipleChoice, setIsMultipleChoice] = useState(false);
     const [availableCompetencies, setAvailableCompetencies] = useState([]);
+    const [imagePreview, setImagePreview] = useState(null);
 
     const handleGradeChange = (gradeLevel) => {
         setData("grade_level", gradeLevel);
@@ -67,19 +69,53 @@ export default function Create({
         }
     };
 
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setData("image", file);
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setImagePreview(reader.result);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const removeImage = () => {
+        setData("image", null);
+        setImagePreview(null);
+    };
+
     const submit = (e) => {
         e.preventDefault();
 
-        const submitData = {
-            ...data,
-            options: isMultipleChoice
-                ? data.options.filter((option) => option.trim() !== "")
-                : null,
-        };
+        const formData = new FormData();
+        formData.append("question_text", data.question_text);
+        if (data.image) {
+            formData.append("image", data.image);
+        }
+        formData.append("question_type", data.question_type);
+        formData.append("grade_level", data.grade_level);
+        formData.append("difficulty", data.difficulty);
+        formData.append("correct_answer", data.correct_answer);
+        formData.append("deped_competency", data.deped_competency);
+
+        if (isMultipleChoice) {
+            const filteredOptions = data.options.filter(
+                (option) => option.trim() !== ""
+            );
+            filteredOptions.forEach((option, index) => {
+                formData.append(`options[${index}]`, option);
+            });
+        }
 
         post(route("teacher.questions.store"), {
-            data: submitData,
-            onSuccess: () => reset(),
+            data: formData,
+            forceFormData: true,
+            onSuccess: () => {
+                reset();
+                setImagePreview(null);
+            },
         });
     };
 
@@ -128,6 +164,87 @@ export default function Create({
                                         message={errors.question_text}
                                         className="mt-2"
                                     />
+                                </div>
+
+                                {/* Image Upload */}
+                                <div>
+                                    <InputLabel
+                                        htmlFor="image"
+                                        value="Question Image (Optional)"
+                                    />
+                                    <div className="mt-2">
+                                        {imagePreview ? (
+                                            <div className="relative inline-block">
+                                                <img
+                                                    src={imagePreview}
+                                                    alt="Preview"
+                                                    className="max-w-md max-h-64 rounded-lg border-2 border-gray-300 shadow-md"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={removeImage}
+                                                    className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-2 shadow-lg transition-all"
+                                                >
+                                                    <svg
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                        className="h-5 w-5"
+                                                        viewBox="0 0 20 20"
+                                                        fill="currentColor"
+                                                    >
+                                                        <path
+                                                            fillRule="evenodd"
+                                                            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                                            clipRule="evenodd"
+                                                        />
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                        ) : (
+                                            <label
+                                                htmlFor="image"
+                                                className="flex flex-col items-center justify-center w-full h-48 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-all"
+                                            >
+                                                <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                                                    <svg
+                                                        className="w-12 h-12 mb-3 text-gray-400"
+                                                        fill="none"
+                                                        stroke="currentColor"
+                                                        viewBox="0 0 24 24"
+                                                    >
+                                                        <path
+                                                            strokeLinecap="round"
+                                                            strokeLinejoin="round"
+                                                            strokeWidth="2"
+                                                            d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                                                        />
+                                                    </svg>
+                                                    <p className="mb-2 text-sm text-gray-500">
+                                                        <span className="font-semibold">
+                                                            Click to upload
+                                                        </span>{" "}
+                                                        or drag and drop
+                                                    </p>
+                                                    <p className="text-xs text-gray-500">
+                                                        PNG, JPG, GIF up to 5MB
+                                                    </p>
+                                                </div>
+                                                <input
+                                                    id="image"
+                                                    type="file"
+                                                    className="hidden"
+                                                    accept="image/*"
+                                                    onChange={handleImageChange}
+                                                />
+                                            </label>
+                                        )}
+                                    </div>
+                                    <InputError
+                                        message={errors.image}
+                                        className="mt-2"
+                                    />
+                                    <p className="mt-1 text-sm text-gray-500">
+                                        📸 Add an image to make the question more engaging and visual for students!
+                                    </p>
                                 </div>
 
                                 {/* Grade Level and Question Type */}

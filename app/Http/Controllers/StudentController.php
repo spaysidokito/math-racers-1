@@ -32,7 +32,13 @@ class StudentController extends Controller
     ]);
 
     $user = Auth::user();
-    $user->update(['grade_level' => $request->grade_level]);
+
+    // Validate that student can only select their own grade level
+    if ($user->grade_level != $request->grade_level) {
+      return back()->withErrors([
+        'grade_level' => 'You can only access content for your assigned grade level (Grade ' . $user->grade_level . ').'
+      ]);
+    }
 
     \Log::info('Redirecting to topics', ['grade' => $request->grade_level, 'url' => route('student.topics', ['grade' => $request->grade_level])]);
 
@@ -46,6 +52,13 @@ class StudentController extends Controller
     }
 
     $user = Auth::user();
+
+    // Validate that student can only access their own grade level
+    if ($user->grade_level != $grade) {
+      return redirect()->route('student.dashboard')->withErrors([
+        'access' => 'You can only access content for your assigned grade level (Grade ' . $user->grade_level . ').'
+      ]);
+    }
 
     // Define topics available for each grade level
     $topics = [
@@ -72,6 +85,13 @@ class StudentController extends Controller
     }
 
     $user = Auth::user();
+
+    // Validate that student can only access their own grade level
+    if ($user->grade_level != $grade) {
+      return redirect()->route('student.dashboard')->withErrors([
+        'access' => 'You can only access content for your assigned grade level (Grade ' . $user->grade_level . ').'
+      ]);
+    }
 
     return Inertia::render('Student/SelectDifficulty', [
       'user' => $user,
@@ -112,6 +132,13 @@ class StudentController extends Controller
     $grade = $request->grade;
     $topic = $request->topic;
     $difficulty = $request->difficulty;
+
+    // Validate that student can only start quiz for their own grade level
+    if ($user->grade_level != $grade) {
+      return redirect()->route('student.dashboard')->withErrors([
+        'access' => 'You can only start quizzes for your assigned grade level (Grade ' . $user->grade_level . ').'
+      ]);
+    }
 
     // Get questions for this grade, topic, and difficulty
     $questions = Question::forGrade($grade)

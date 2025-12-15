@@ -23,6 +23,7 @@ class StoreQuestionRequest extends FormRequest
   {
     return [
       'question_text' => 'required|string|max:1000',
+      'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120', // 5MB max
       'question_type' => 'required|in:addition,subtraction,multiplication,division',
       'grade_level' => 'required|integer|between:1,3',
       'difficulty' => 'required|in:easy,medium,hard',
@@ -41,6 +42,9 @@ class StoreQuestionRequest extends FormRequest
     return [
       'question_text.required' => 'The question text is required.',
       'question_text.max' => 'The question text may not be greater than 1000 characters.',
+      'image.image' => 'The file must be an image.',
+      'image.mimes' => 'The image must be a file of type: jpeg, png, jpg, gif.',
+      'image.max' => 'The image may not be greater than 5MB.',
       'question_type.required' => 'Please select a question type.',
       'question_type.in' => 'The selected question type is invalid.',
       'grade_level.required' => 'Please select a grade level.',

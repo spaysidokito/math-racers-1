@@ -20,6 +20,7 @@ class Question extends Model
    */
   protected $fillable = [
     'question_text',
+    'image_path',
     'question_type',
     'grade_level',
     'difficulty',

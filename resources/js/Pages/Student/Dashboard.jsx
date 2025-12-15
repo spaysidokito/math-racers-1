@@ -47,6 +47,11 @@ export default function StudentDashboard({ user }) {
         },
     ];
 
+    const isGradeAccessible = (gradeLevel) => {
+        // Students can only access their own grade level
+        return user.grade_level === gradeLevel;
+    };
+
     return (
         <AuthenticatedLayout
             header={
@@ -86,88 +91,134 @@ export default function StudentDashboard({ user }) {
 
                     {/* Grade Selection Cards */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                        {grades.map((grade) => (
-                            <div
-                                key={grade.level}
-                                className={`
-                                    relative overflow-hidden rounded-xl border-2 p-6 cursor-pointer transition-all duration-200 transform hover:scale-105 hover:shadow-lg
-                                    ${grade.color}
-                                    ${
-                                        selectedGrade === grade.level
-                                            ? "ring-4 ring-yellow-400 ring-opacity-50"
-                                            : ""
+                        {grades.map((grade) => {
+                            const isAccessible = isGradeAccessible(grade.level);
+                            const isLocked = !isAccessible;
+
+                            return (
+                                <div
+                                    key={grade.level}
+                                    className={`
+                                        relative overflow-hidden rounded-xl border-2 p-6 transition-all duration-200
+                                        ${
+                                            isLocked
+                                                ? "bg-gray-100 border-gray-300 opacity-60 cursor-not-allowed"
+                                                : `cursor-pointer transform hover:scale-105 hover:shadow-lg ${grade.color}`
+                                        }
+                                        ${
+                                            selectedGrade === grade.level &&
+                                            isAccessible
+                                                ? "ring-4 ring-yellow-400 ring-opacity-50"
+                                                : ""
+                                        }
+                                        ${
+                                            processing
+                                                ? "opacity-50 cursor-not-allowed"
+                                                : ""
+                                        }
+                                    `}
+                                    onClick={() =>
+                                        !processing &&
+                                        isAccessible &&
+                                        handleGradeSelection(grade.level)
                                     }
-                                    ${
-                                        processing
-                                            ? "opacity-50 cursor-not-allowed"
-                                            : ""
-                                    }
-                                `}
-                                onClick={() =>
-                                    !processing &&
-                                    handleGradeSelection(grade.level)
-                                }
-                            >
-                                {/* Racing Flag Icon */}
-                                <div className="absolute top-2 right-2 text-2xl">
-                                    🏁
-                                </div>
+                                >
+                                    {/* Lock Icon for inaccessible grades */}
+                                    {isLocked && (
+                                        <div className="absolute top-2 right-2 text-3xl">
+                                            🔒
+                                        </div>
+                                    )}
 
-                                <div className="text-center">
-                                    <h3
-                                        className={`text-2xl font-bold mb-2 ${grade.textColor}`}
-                                    >
-                                        {grade.title}
-                                    </h3>
-                                    <p
-                                        className={`text-sm mb-4 ${grade.textColor} opacity-80`}
-                                    >
-                                        {grade.description}
-                                    </p>
+                                    {/* Racing Flag Icon for accessible grades */}
+                                    {!isLocked && (
+                                        <div className="absolute top-2 right-2 text-2xl">
+                                            🏁
+                                        </div>
+                                    )}
 
-                                    {/* Racing Car Icon */}
-                                    <div className="text-4xl mb-3">🏎️</div>
+                                    <div className="text-center">
+                                        <h3
+                                            className={`text-2xl font-bold mb-2 ${
+                                                isLocked
+                                                    ? "text-gray-600"
+                                                    : grade.textColor
+                                            }`}
+                                        >
+                                            {grade.title}
+                                        </h3>
+                                        <p
+                                            className={`text-sm mb-4 ${
+                                                isLocked
+                                                    ? "text-gray-500"
+                                                    : `${grade.textColor} opacity-80`
+                                            }`}
+                                        >
+                                            {grade.description}
+                                        </p>
 
-                                    <PlayfulButton
-                                        variant="racing"
-                                        size="normal"
-                                        icon="🚀"
-                                        soundEffect="racing"
-                                        disabled={processing}
-                                        className="w-full"
-                                    >
-                                        {processing &&
-                                        selectedGrade === grade.level ? (
-                                            <span className="flex items-center justify-center">
-                                                <svg
-                                                    className="animate-spin -ml-1 mr-3 h-5 w-5"
-                                                    xmlns="http://www.w3.org/2000/svg"
-                                                    fill="none"
-                                                    viewBox="0 0 24 24"
-                                                >
-                                                    <circle
-                                                        className="opacity-25"
-                                                        cx="12"
-                                                        cy="12"
-                                                        r="10"
-                                                        stroke="currentColor"
-                                                        strokeWidth="4"
-                                                    ></circle>
-                                                    <path
-                                                        className="opacity-75"
-                                                        fill="currentColor"
-                                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                                                    ></path>
-                                                </svg>
-                                                Starting...
-                                            </span>
+                                        {/* Racing Car Icon */}
+                                        <div className="text-4xl mb-3">
+                                            {isLocked ? "🔐" : "🏎️"}
+                                        </div>
+
+                                        {isLocked ? (
+                                            <div className="bg-gray-300 text-gray-600 font-bold py-3 px-4 rounded-xl">
+                                                Not Available
+                                            </div>
                                         ) : (
-                                            "Start Racing!"
+                                            <PlayfulButton
+                                                variant="racing"
+                                                size="normal"
+                                                icon="🚀"
+                                                soundEffect="racing"
+                                                disabled={processing}
+                                                className="w-full"
+                                            >
+                                                {processing &&
+                                                selectedGrade === grade.level ? (
+                                                    <span className="flex items-center justify-center">
+                                                        <svg
+                                                            className="animate-spin -ml-1 mr-3 h-5 w-5"
+                                                            xmlns="http://www.w3.org/2000/svg"
+                                                            fill="none"
+                                                            viewBox="0 0 24 24"
+                                                        >
+                                                            <circle
+                                                                className="opacity-25"
+                                                                cx="12"
+                                                                cy="12"
+                                                                r="10"
+                                                                stroke="currentColor"
+                                                                strokeWidth="4"
+                                                            ></circle>
+                                                            <path
+                                                                className="opacity-75"
+                                                                fill="currentColor"
+                                                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                                            ></path>
+                                                        </svg>
+                                                        Starting...
+                                                    </span>
+                                                ) : (
+                                                    "Start Racing!"
+                                                )}
+                                            </PlayfulButton>
                                         )}
-                                    </PlayfulButton>
+                                    </div>
+
+                                    {/* Locked message overlay */}
+                                    {isLocked && (
+                                        <div className="mt-3 text-center">
+                                            <p className="text-xs text-gray-600 font-medium">
+                                                Only available for Grade{" "}
+                                                {grade.level} students
+                                            </p>
+                                        </div>
+                                    )}
                                 </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
 
                     {/* Quick Actions */}

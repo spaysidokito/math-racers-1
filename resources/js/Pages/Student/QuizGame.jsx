@@ -451,6 +451,15 @@ export default function QuizGame({
                                     <h2 className="text-4xl font-bold text-gray-800 mb-4">
                                         {currentQuestion.question_text}
                                     </h2>
+                                    {currentQuestion.image_path && (
+                                        <div className="mt-6 flex justify-center">
+                                            <img
+                                                src={`/storage/${currentQuestion.image_path}`}
+                                                alt="Question illustration"
+                                                className="max-w-md max-h-64 rounded-xl shadow-lg border-4 border-purple-200"
+                                            />
+                                        </div>
+                                    )}
                                 </div>
 
                                 {/* Multiple Choice for Easy/Medium or Type Answer for Hard */}
