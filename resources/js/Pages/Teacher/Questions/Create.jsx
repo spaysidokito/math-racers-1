@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Head, Link, useForm } from "@inertiajs/react";
+import { Head, Link, useForm, router } from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import PrimaryButton from "@/Components/PrimaryButton";
 import SecondaryButton from "@/Components/SecondaryButton";
@@ -89,30 +89,31 @@ export default function Create({
     const submit = (e) => {
         e.preventDefault();
 
-        // Prepare data for submission
-        const submitData = {
-            question_text: data.question_text,
-            question_type: data.question_type,
-            grade_level: data.grade_level,
-            difficulty: data.difficulty,
-            correct_answer: data.correct_answer,
-            deped_competency: data.deped_competency,
-        };
+        // Create FormData manually to ensure proper file upload
+        const formData = new FormData();
+        formData.append('question_text', data.question_text);
+        formData.append('question_type', data.question_type);
+        formData.append('grade_level', data.grade_level);
+        formData.append('difficulty', data.difficulty);
+        formData.append('correct_answer', data.correct_answer);
+        formData.append('deped_competency', data.deped_competency || '');
 
         // Add image if present
         if (data.image) {
-            submitData.image = data.image;
+            formData.append('image', data.image);
         }
 
         // Add options if multiple choice
         if (isMultipleChoice) {
-            submitData.options = data.options.filter(
-                (option) => option.trim() !== ""
-            );
+            const filteredOptions = data.options.filter(option => option.trim() !== '');
+            filteredOptions.forEach((option, index) => {
+                formData.append(`options[${index}]`, option);
+            });
         }
 
-        post(route("teacher.questions.store"), submitData, {
-            forceFormData: true,
+        // Use router.post instead of form post for manual FormData
+        router.post(route("teacher.questions.store"), formData, {
+            preserveScroll: true,
             onSuccess: () => {
                 reset();
                 setImagePreview(null);

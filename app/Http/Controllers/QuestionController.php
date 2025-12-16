@@ -154,8 +154,15 @@ class QuestionController extends Controller
   {
     $validated = $request->validated();
 
+    // Handle image removal
+    if ($request->input('remove_image')) {
+      if ($question->image_path && \Storage::disk('public')->exists($question->image_path)) {
+        \Storage::disk('public')->delete($question->image_path);
+      }
+      $validated['image_path'] = null;
+    }
     // Handle image upload
-    if ($request->hasFile('image')) {
+    elseif ($request->hasFile('image')) {
       // Delete old image if exists
       if ($question->image_path && \Storage::disk('public')->exists($question->image_path)) {
         \Storage::disk('public')->delete($question->image_path);

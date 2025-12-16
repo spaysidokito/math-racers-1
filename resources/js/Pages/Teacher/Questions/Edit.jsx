@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Head, Link, useForm } from "@inertiajs/react";
+import { Head, Link, useForm, router } from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import PrimaryButton from "@/Components/PrimaryButton";
 import SecondaryButton from "@/Components/SecondaryButton";
@@ -34,6 +34,7 @@ export default function Edit({
     const [imagePreview, setImagePreview] = useState(
         question.image_path ? `/storage/${question.image_path}` : null
     );
+    const [shouldRemoveImage, setShouldRemoveImage] = useState(false);
 
     useEffect(() => {
         updateCompetencies(data.grade_level, data.question_type);
@@ -83,6 +84,7 @@ export default function Edit({
         const file = e.target.files[0];
         if (file) {
             setData("image", file);
+            setShouldRemoveImage(false);
             const reader = new FileReader();
             reader.onloadend = () => {
                 setImagePreview(reader.result);
@@ -94,20 +96,43 @@ export default function Edit({
     const removeImage = () => {
         setData("image", null);
         setImagePreview(null);
+        setShouldRemoveImage(true);
     };
 
     const submit = (e) => {
         e.preventDefault();
 
-        const submitData = {
-            ...data,
-            options: isMultipleChoice
-                ? data.options.filter((option) => option.trim() !== "")
-                : null,
-        };
+        // Create FormData manually to ensure proper file upload
+        const formData = new FormData();
+        formData.append('_method', 'PUT');
+        formData.append('question_text', data.question_text);
+        formData.append('question_type', data.question_type);
+        formData.append('grade_level', data.grade_level);
+        formData.append('difficulty', data.difficulty);
+        formData.append('correct_answer', data.correct_answer);
+        formData.append('deped_competency', data.deped_competency || '');
 
-        post(route("teacher.questions.update", question.id), submitData, {
-            forceFormData: true,
+        // Add image if present
+        if (data.image) {
+            formData.append('image', data.image);
+        }
+
+        // Add remove_image flag if image was removed
+        if (shouldRemoveImage) {
+            formData.append('remove_image', '1');
+        }
+
+        // Add options if multiple choice
+        if (isMultipleChoice) {
+            const filteredOptions = data.options.filter(option => option.trim() !== '');
+            filteredOptions.forEach((option, index) => {
+                formData.append(`options[${index}]`, option);
+            });
+        }
+
+        // Use router.post with _method for PUT
+        router.post(route("teacher.questions.update", question.id), formData, {
+            preserveScroll: true,
         });
     };
 
